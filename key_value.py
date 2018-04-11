@@ -1,13 +1,17 @@
 #linux
 import sys
 import tty
+import termios
 
-def get_key_value():
-    DATA_BUFFER_BUFFER = 3
+def get_key_value(data_buffer_sieze=3):
     fd = sys.stdin.fileno()
-    tty.setcbreak(fd)
-    key = sys.stdin.read(DATA_BUFFER_BUFFER)
-    return key
+    old_settings = termios.tcgetattr(fd)
+    try:
+        tty.setraw(fd)
+        key_value = sys.stdin.read(data_buffer_sieze)
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    return key_value
 
 def get():
     while True:
